@@ -98,6 +98,9 @@ ADD_SCREEN_ACTION_SCHEMA = cv.Schema(
         cv.Required(CONF_ICON): cv.templatable(cv.string),
         cv.Required(CONF_TEXT): cv.templatable(cv.string),
         cv.Optional(CONF_DURATION): cv.templatable(cv.positive_int),
+        cv.Optional(CONF_RED): cv.templatable(cv.uint8_t),
+        cv.Optional(CONF_BLUE): cv.templatable(cv.uint8_t),
+        cv.Optional(CONF_GREEN): cv.templatable(cv.uint8_t),
         cv.Optional(CONF_ALARM, default=False): cv.templatable(cv.boolean),
     }
 )
@@ -120,6 +123,18 @@ async def ehmtx_add_screen_action_to_code(config, action_id, template_arg, args)
     if CONF_DURATION in config:
         template_ = await cg.templatable(config[CONF_DURATION], args, cg.uint8)
         cg.add(var.set_duration(template_))
+
+    if CONF_RED in config:
+        template_ = await cg.templatable(config[CONF_RED], args, cg.int_)
+        cg.add(var.set_red(template_))
+
+    if CONF_GREEN in config:
+        template_ = await cg.templatable(config[CONF_GREEN], args, cg.int_)
+        cg.add(var.set_green(template_))
+
+    if CONF_BLUE in config:
+        template_ = await cg.templatable(config[CONF_BLUE], args, cg.int_)
+        cg.add(var.set_blue(template_))
 
     template_ = await cg.templatable(config[CONF_ALARM], args, bool)
     cg.add(var.set_alarm(template_))

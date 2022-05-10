@@ -73,7 +73,7 @@ namespace esphome
     }
     else
     {
-      this->config_->display->print(TEXTSCROLLSTART - this->shiftx_ + extraoffset + this->config_->xoffset, this->config_->yoffset, this->config_->font, this->config_->text_color,
+      this->config_->display->print(TEXTSCROLLSTART - this->shiftx_ + extraoffset + this->config_->xoffset, this->config_->yoffset, this->config_->font, this->text_color,
                                    this->text.c_str());
     }
     this->config_->display->line(8, 0, 8, 7, esphome::display::COLOR_OFF);
@@ -106,6 +106,11 @@ namespace esphome
       this->endtime += 2 * 60;
     }
     this->icon = icon;
+  }
+
+  void EHMTX_screen::set_text_color(int r, int g, int b)
+  {
+    this->text_color = Color((uint8_t)r & 248, (uint8_t)g & 252, (uint8_t)b & 248);
   }
 
 }

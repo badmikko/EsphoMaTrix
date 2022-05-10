@@ -28,7 +28,7 @@ namespace esphome
     Color weekday_color;
     EHMTX_store *store;
     std::vector<EHMTXNextScreenTrigger *> on_next_screen_triggers_;
-    void internal_add_screen(uint8_t icon, std::string text, uint16_t duration, bool alarm);
+    void internal_add_screen(uint8_t icon, std::string text, uint16_t duration, int r, int g, int b, bool alarm);
 
   public:
     EHMTX();
@@ -67,7 +67,7 @@ namespace esphome
     void set_default_brightness(uint8_t b);
     void set_brightness(uint8_t b);
     uint8_t get_brightness();
-    void add_screen(std::string icon, std::string text, uint16_t duration, bool alarm);
+    void add_screen(std::string icon, std::string text, uint16_t duration, int r, int g, int b, bool alarm);
     void del_screen(std::string iname);
     void set_clock(time::RealTimeClock *clock);
     void set_font(display::Font *font);
@@ -123,6 +123,7 @@ namespace esphome
     time_t endtime;
     uint8_t icon;
     std::string text;
+    Color text_color;
 
     EHMTX_screen(EHMTX *config);
 
@@ -135,6 +136,7 @@ namespace esphome
     void update_screen();
     bool del_slot(uint8_t _icon);
     void set_text(std::string text, uint8_t icon, uint8_t pixel, uint16_t et);
+    void set_text_color(int r, int g, int b);
   };
 
   class EHMTXNextScreenTrigger : public Trigger<std::string, std::string>
@@ -152,6 +154,9 @@ namespace esphome
     TEMPLATABLE_VALUE(std::string, icon)
     TEMPLATABLE_VALUE(std::string, text)
     TEMPLATABLE_VALUE(uint8_t, duration)
+    TEMPLATABLE_VALUE(uint8_t, red)
+    TEMPLATABLE_VALUE(uint8_t, green)
+    TEMPLATABLE_VALUE(uint8_t, blue)
     TEMPLATABLE_VALUE(bool, alarm)
 
     void play(Ts... x) override
@@ -159,13 +164,19 @@ namespace esphome
       auto icon = this->icon_.value(x...);
       auto text = this->text_.value(x...);
       auto duration = this->duration_.value(x...);
+      auto red = this->red_.value(x...);
+      auto green = this->green_.value(x...);
+      auto blue = this->blue_.value(x...);
       auto alarm = this->alarm_.value(x...);
 
-      if(duration) {
-        this->parent_->add_screen(icon, text, duration, alarm);
-      } else {
-        this->parent_->add_screen(icon, text, this->parent_->duration, alarm);
-      }
+      this->parent_->add_screen(
+        icon, text,
+        duration ? duration : this->parent_->duration,
+        red || green || blue ? red : this->parent_->text_color.r,
+        red || green || blue ? green : this->parent_->text_color.g,
+        red || green || blue ? blue : this->parent_->text_color.b,
+        alarm
+      );
     }
 
   protected:

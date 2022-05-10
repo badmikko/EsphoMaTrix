@@ -22,9 +22,9 @@ namespace esphome
       ESP_LOGI(TAG, "weekstart: monday");
     } else {
       ESP_LOGI(TAG, "weekstart: sunday");
-    } 
+    }
   }
-  
+
   void EHMTX::force_screen(std::string name)
   {
     uint8_t icon_id = this->find_icon(name);
@@ -216,14 +216,15 @@ namespace esphome
     this->store->delete_screen(icon);
   }
 
-  void EHMTX::add_screen(std::string iconname, std::string text, uint16_t duration, bool alarm)
+  void EHMTX::add_screen(std::string iconname, std::string text, uint16_t duration, int r, int g, int b, bool alarm)
   {
     uint8_t icon = this->find_icon(iconname.c_str());
-    this->internal_add_screen(icon, text, duration, alarm);
+    this->internal_add_screen(icon, text, duration, r, g, b, alarm);
     ESP_LOGD(TAG, "add_screen icon: %d iconname: %s text: %s duration: %d alarm: %d", icon, iconname.c_str(), text.c_str(), duration, alarm);
+    ESP_LOGD(TAG, "add_screen r: %d g: %d b: %d", r, g, b);
   }
 
-  void EHMTX::internal_add_screen(uint8_t icon, std::string text, uint16_t duration, bool alarm = false)
+  void EHMTX::internal_add_screen(uint8_t icon, std::string text, uint16_t duration, int r, int g, int b, bool alarm = false)
   {
     if (icon >= this->icon_count)
     {
@@ -236,6 +237,7 @@ namespace esphome
     this->display->get_text_bounds(0, 0, text.c_str(), this->font, display::TextAlign::LEFT, &x, &y, &w, &h);
     screen->alarm = alarm;
     screen->set_text(text, icon, w, duration);
+    screen->set_text_color(r, g, b);
   }
 
   void EHMTX::set_default_brightness(uint8_t b)
