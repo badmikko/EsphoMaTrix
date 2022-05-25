@@ -315,7 +315,7 @@ namespace esphome
       ESP_LOGI(TAG, "weekstart: monday");
     } else {
       ESP_LOGI(TAG, "weekstart: sunday");
-    } 
+    }
   }
 
   void EHMTX::set_brightness(uint8_t b)
@@ -357,7 +357,7 @@ namespace esphome
     auto dow = this->clock->now().day_of_week - 1; // SUN = 0
       for (uint8_t i = 0; i <= 6; i++)
       {
-        if ( ((!this->week_starts_monday) && (dow == i)) || 
+        if ( ((!this->week_starts_monday) && (dow == i)) ||
              ((this->week_starts_monday) && ((dow == (i+1)) || ((dow==0 && i == 6)) )))
         {
           this->display->line(2 + i * 4, 7, i * 4 + 4, 7, this->today_color);
@@ -367,7 +367,7 @@ namespace esphome
           this->display->line(2 + i * 4, 7, i * 4 + 4, 7, this->weekday_color);
         }
       }
-    
+
   };
 
   void EHMTX::set_font_offset(int8_t x, int8_t y)
@@ -388,7 +388,7 @@ namespace esphome
       ESP_LOGCONFIG(TAG, "weekstart: monday");
     } else {
       ESP_LOGCONFIG(TAG, "weekstart: sunday");
-    } 
+    }
   }
 
 #ifdef USE_EHMTX_SELECT
@@ -436,7 +436,7 @@ namespace esphome
         this->draw_clock();
       }
     }
-    
+
     if (this->show_indicator)
     {
       this->display->line(31, 5, 29, 7, this->indicator_color);

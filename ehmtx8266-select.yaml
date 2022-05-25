@@ -8,8 +8,8 @@ external_components:
       type: git
       url: https://github.com/lubeda/EsphoMaTrix
       ref: main
-    refresh: 120s 
-    components: [ ehmtx ]   
+    refresh: 120s
+    components: [ ehmtx ]
       #type: local
       #path: components
 
@@ -186,7 +186,7 @@ ehmtx:
   week_start_monday: false
   duration: 7
   font_id: ehmtx_font
-  icons: 
+  icons:
     - file: _icons/TAKE OFF ROCKET START COUNTDOWN_8631.gif
       id: boot
     - file: _icons/Garage Door open_30081.gif
@@ -224,7 +224,7 @@ ehmtx:
     - file: _icons/Rice Cooker_22604.gif
       id: cookit
     - file: _icons/Avengers _12091.gif
-      id: avengers    
+      id: avengers
     - file: _icons/Beach_23726.gif
       id: nature
     - file: _icons/Chair moves to desk_2074.gif
@@ -267,4 +267,3 @@ ehmtx:
       id: iss
     - file: _icons/Thunder_37533.gif
       id: thunder
-  
