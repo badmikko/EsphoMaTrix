@@ -1,21 +1,21 @@
 # EspHoMaTriX (ehmtx)
-A simple DIY status display build with a flexible 8x32 RGB LED panel implemented with [esphome.io](https://esphome.io)
+A simple DIY status display, build with a flexible 8x32 RGB LED panel implemented with [esphome.io](https://esphome.io)
 
 # Introduction
 
-There are some "RGB-matrix" status displays/clocks out there, the commercial one from Lamtric and some very good d.i.y.-alternatives. 
+There are some "RGB-matrix" status displays/clocks out there, the commercial one from Lametric and some very good d.i.y.-alternatives. 
 
 - [LaMetric](https://lametric.com/en-US/) commercial ~ 199€
 - [Awtrix](https://awtrixdocs.blueforcer.de/#/)
 - [PixelIt](https://docs.bastelbunker.de/pixelit/)
 
-The other d.i.y. solutions have their pros and cons. I tried both and used AwTrix for a long time. But the cons are so big (after my opinion) that i started an esphome.io variant targeted to an optimized homeassistant integration. The main reason, for me is the homeassistant integration!
+The other d.i.y. solutions have their pros and cons. I tried both and used AwTrix for a long time. But the cons are so big (after my opinion) that i started an esphome.io variant. Targeted to an optimized homeassistant integration. The main reason, for me is the homeassistant integration!
 
 ## State
 
 **First release!**
 
-It is a working solution with the core funtionality coded. Advanced features, like automatic brigtness control can be done with esphome actions and automations. 
+It is a working solution with core functionality coded. Advanced features, like automatic brightness control can be done with esphome actions and automations. 
 
 See it in action [youtube](https://www.youtube.com/watch?v=ZyaFj7ArIdY) (boring, no sound but subtitles)
 
@@ -27,12 +27,12 @@ Based a on a 8x32 RGB flexible matrix it displays a clock, the date and up to 16
 
 You can use the ehmtx32.yaml as sample for an ESP32. As mentioned you have to edit to your needs. So check font, icons, board and the GPIO port for your display.
 
-The file ehmtx32.yaml uses the function ehmtx provides, the sample file ehmtx8266.yaml uses actions where possible.
+The file ehmtx32.yaml uses the function ehmtx provides, the sample file ehmtx8266.yaml uses actions where possible. You have to adapt the yaml to your hardware, since there are other RGB-LED Displays possible.
 
 # Installation
 
 ## Font
-Download a small "pixel" TTF-font, i use ["monobit.ttf"](https://www.google.com/search?q=monobit.ttf). You can modify this font with [FontForge](https://fontforge.org/) and added **€** on base of a **E** and so on. Due to copyright i can't provide my modified version :-(.
+Download a small "pixel" TTF-font, i use ["monobit.ttf"](https://www.google.com/search?q=monobit.ttf). You can modify this font with [FontForge](https://fontforge.org/) and added **€** on base of a **E** and so on. Due to copyright i can't provide my modified version :-(. Not all fonts are suitable for this minimalistic display. 
 
 ```
 font:
@@ -44,37 +44,95 @@ font:
 ```
 
 ## icons/animations
-Download and install all needed icons (.jpg/.png)/animations (.gif) under the "ehmtx"-key. All icons are automagically scaled to 8x8 on compile-time. 
+Download and install all needed icons (.jpg/.png)/animations (.gif) under the "ehmtx"-key. All icons are automagically scaled to 8x8 on compile-time. You can also specify an url to directly download an image file.
 
 ```
 emhtx:
   icons: 
     - file: icons/rocket.gif
+      duration: 75
       id: boot 
     - file: temperature.png
       id: temp 
+    - file: _icons/yoga-bridge.gif
+      pingpong: true
+      id: yoga
     - file: garage.gif
+      duration: 100
       id: garage
+    - url: https://github.com/home-assistant/assets/raw/master/logo/logo-small.png
+      id: homeassistant
 ```
 
-Gifs are limited to 8 frames to limit the flash space. Thr first icon in your list is the fallback in case of an error.
+### Parameter
+**duration (Optional, ms):** in case of a gif file the component tries to read the default intervall for each frame. The default/fallback intervall is 192ms. In case you need to override set the duration per icon
 
-All other solutions provide ready made icons, especialy lametric has a big database of [icons](https://developer.lametric.com/icons). Please check the copyright of the icons you use. The amount of icons is limited to 64 in the code and also by the flashspace and the RAM of your board.
+**pingpong (Optional, boolean):** in case of a gif file you can reverse the frames instead of starting from the first.
+
+Gifs are limited to 16 frames to limit the flash space. The first icon in your list is the fallback in case of an error.
+
+All other solutions provide ready made icons, especialy lametric has a big database of [icons](https://developer.lametric.com/icons) or the [awtrix.blueforcer.de](https://awtrix.blueforcer.de/icons.html). Please check the copyright of the icons you use. The amount of icons is limited to 64 in the code and also by the flashspace and the RAM of your board.
 
 The id of the icons is used later to configure the screens to display. So you should name them clever.
+
+**file (Exlusive, filename):** a local filename
+**url (Exclusive, url):** a url to download an icon
+
+### preview helper
+
+You can create a file with all icons and names as reference in the config directory. The file is named like the yaml with the extension ".html"
+
+```
+emhtx:
+  html: true
+```
+
+sample result
+
+```
+<HTML><STYLE> img { height: 40px; width: 40px; background: black;}</STYLE><BODY>
+error: <img src="_icons/error fatal.gif" alt="error">&nbsp;
+leia: <img src="_icons/princess leia.gif" alt="leia">&nbsp;
+</BODY></HTML>
+```
+
+### show all icons on your matrix
+
+This code shows all icons once on boot up, depending on the amount of your icons it can take a while to see them all.
+
+```
+esphome:
+  ....
+  on_boot:
+    priority: -100
+    # ...
+    then:
+      - lambda: !lambda |-
+          id(rgb8x32)->show_all_icons();
+```
+
+Here you can show all of your icons via a service call:
+
+```
+api:
+  services:
+    - service: icons
+      then:
+        lambda: |-
+          id(rgb8x32)->show_all_icons();
+```
 
 ## esphome component
 
 ### local use
 
-If you download the componets-folder from the repo an install it in your esphome you have more stable installation. But if there are new features you won't see them. If needed customize the yaml to your folder structure.
+If you download the components-folder from the repo and install it in your esphome you have a stable installation. But if there are new features you won't see them. If needed customize the yaml to your folder structure.
 
 ```
 external_components:
    - source:
        type: local
        path: components # e.g. /config/esphome/components
-
 ```
 
 ### use from repo direct
@@ -97,6 +155,7 @@ ehmtx:
   show_clock: 6 
   show_screen: 8
   duration: 5
+  html: true
   display8x32: ehmtxdisplay
   time: EHMTX_clock
   font_id: EHMTX_font
@@ -118,19 +177,23 @@ _Configuration variables:_
 
 **duration (Optional, minutes):** lifetime of a screen in minutes (default=5). If not updates a screen will be removed after ```duration``` minutes
 
-**yoffset (Optional, pixel):** yoffset of the font, default -5 (see installation/font)
+**yoffset (Optional, pixel):** yoffset the text is aligned BASELINE_LEFT, the baseline defaults to 6 
+
+**xoffset (Optional, pixel):** xoffset the text is aligned BASELINE_LEFT, the left defaults to 1
 
 **display8x32 (required, ID):** ID of the addressable display
 
 **time (required, ID):** ID of the time component
 
-**week_start_monday (optional, bool):** default monday is first day of week, false => sunday
-
 **font (required, ID):** ID of the font component
+
+**week_start_monday (optional, bool):** default monday is first day of week, false => sunday
 
 **scroll_intervall (Optional, ms):** the intervall in ms to scroll the text (default=80), should be a multiple of the ```update_interval``` from the display (default: 16ms)
 
 **anim_intervall (Optional, ms):** the intervall in ms to display the next anim frame (default=192), should be a multiple of the ```update_interval``` from the display (default: 16ms)
+
+**html (Optional, boolean):** If true generate a html (_filename_.yaml.html) file to show all include icons.  (default: false)
 
 ## Usage without homeassistant
 
@@ -146,14 +209,14 @@ sensor:
         lambda: |-
           char text[30];
           sprintf(text,"Light: %2.1f lx", id(sensorlx).state);
-          id(rgb8x32)->add_screen("sun", text, 5, false); // 5 Minutes, no alarm
+           id(rgb8x32)->add_screen("sun", text, 5, false); // 5 Minutes, no alarm
 ```
 
 Take care that the ```char text[30];``` has enough space to store the formated text. 
 
 ## local trigger
 
-There is a trigger available to do some local magic. The trigger ```on_next_screen``` is triggered every time a new screen is displayed (so doesn't trigger on the clock display!!). In lambda's you can use two local string variables:
+There is a trigger available to do some local magic. The trigger ```on_next_screen``` is triggered every time a new screen is displayed (it doesn't trigger on the clock/date display!!). In lambda's you can use two local string variables:
 
 **x (Name of the icon, std::string):** value to use in lamba
 
@@ -172,7 +235,7 @@ ehmtx:
         ESP_LOGI("TriggerTest","Text: %s",y.c_str());
 ```
 
-#### send event to homeassistant
+#### send an event to homeassistant
 
 To send data back to home assistant you can use events.
 
@@ -200,29 +263,6 @@ Force the selected screen ```icon_name``` to be displayed next. Afterwards the l
         icon_name: !lambda return icon_name;
 ```
 
-#### Indicator on
-
-The indicator is a static colored corner on the display.
-
-You have to use use id of your ehmtx component, e.g. ```rgb8x32```
-
-```
-     - ehmtx.indicator.on:
-        id: rgb8x32
-        red: !lambda return r;
-        green: !lambda return g;
-        blue: !lambda return b;
-```
-
-- ```red, green, blue```: the color components (0..255) (default=80)
-
-#### Indicator off 
-
-```
-     - ehmtx.indicator.off:
-            id: rgb8x32
-```
-
 #### set (text/alarm/clock/weekday/today) color action
 
 Sets the color of the select element
@@ -247,7 +287,7 @@ valid elements:
 
 ##### sample:
 
-```
+````
 esphome:
   name: $devicename
   on_boot:
@@ -271,6 +311,29 @@ esphome:
           red: !lambda return 250;
           green: !lambda return 50;
           blue: !lambda return 30;
+```
+
+#### Indicator on
+
+The indicator is a static colored corner on the display.
+
+You have to use use id of your ehmtx component, e.g. ```rgb8x32```
+
+```
+     - ehmtx.indicator.on:
+        id: rgb8x32
+        red: !lambda return r;
+        green: !lambda return g;
+        blue: !lambda return b;
+```
+
+- ```red, green, blue```: the color components (0..255) (default=80)
+
+#### Indicator off 
+
+```
+     - ehmtx.indicator.off:
+            id: rgb8x32
 ```
 
 #### add screen to loop
@@ -342,6 +405,21 @@ Sets the overall brightness of the display (0..255)
 parameters:
 - ```brightness```: from dark to bright (0..255) (default=80) as set in the light component by ```color_correct: [30%, 30%, 30%]```
 
+There's an easier way in using a number component:
+
+```
+number:
+  - platform: template
+    name: "LED brightness"
+    min_value: 0
+    max_value: 255
+    step: 1
+    lambda: |-
+      return id(rgb8x32)->get_brightness();
+    set_action:
+      lambda: |-
+        id(rgb8x32)->set_brightness(x);
+```
 Service **_alarm**
 
 Sets an alarm, the alarm is like a normal screen but is displayed two minutes longer than a normal screen and has a red text color and a red marker in the upper right corner.
@@ -388,6 +466,10 @@ Service **indicator_off**
 
 removes the indicator
 
+Service **skip**
+
+skips to the next screen
+
 Service **status**
 
 This service displays the running queue and a list of icons in the logs
@@ -433,6 +515,59 @@ mode: queued
 max: 10
 ```
 
+### integrate in home assistant ui
+
+you can add some entities to home assistant to your ui for interactive control of your display
+
+#### brightness
+
+```
+number:
+  - platform: template
+    name: "$devicename brightness"
+    min_value: 0
+    max_value: 255
+    step: 1
+    lambda: |-
+      return id(rgb8x32)->get_brightness();
+    set_action:
+      lambda: |-
+        id(rgb8x32)->set_brightness(x);
+```
+
+#### force screen
+
+With the select component you can select, from a dropdown, which screen to show next. As with the force service if the chosen screen/icon isn't active nothing will happen. The state of the select componenten doesn't reflect the actual display because it is published only all 30s. You should also consider to not record this state in your history.
+
+```
+ehmtx:
+  id: rgb8x32
+  ...
+  ehmtxselect: ehmtx_screens #id of your select component
+  ...
+  
+select:
+  - platform: ehmtx
+    id: ehmtx_screens
+    name: "ehmtx screens"
+```
+
+With the select-component you can use a script like this to show all icons. The integrated script editor in home assistant doesn't support it, so you have to add it with e.g. the vs-code addon
+
+```
+alias: EHMTX show all icons
+sequence:
+  - repeat:
+      for_each: '{{ states.select.ehmtx8266_screens.attributes.options }}'
+      sequence:
+        service: esphome.ehmtx8266_screen
+        data:
+          icon_name: '{{ repeat.item }}'
+          text: '{{ repeat.item }}'
+mode: single
+icon: mdi:led-strip
+```
+
 ## Hardware/Wifi
 
 Adapt all other data in the yaml to your needs, I use GPIO04/GPIO16 (esp8266/ESP32) as port for the display.
@@ -457,6 +592,11 @@ sensor:
                id(rgb8x32)->set_brightness(250);
             }
 ```
+
+# notifier
+
+There is a optional [notifier component](https://github.com/lubeda/EHMTX_custom_component) you can install with hacs. It is compareable to the **_screen** service but more streamlined.
+
 
 # Usage
 
