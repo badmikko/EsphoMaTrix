@@ -87,6 +87,7 @@ namespace esphome
             EHMTX_screen *screen = this->slots[slot];
             if (screen->active())
             {
+                screen->reset_text_scroll();
                 this->active_slot = slot;
                 return true;
             }
@@ -98,6 +99,7 @@ namespace esphome
             EHMTX_screen *screen = this->slots[slot];
             if (screen->active())
             {
+                screen->reset_text_scroll();
                 this->active_slot = slot;
                 return true;
             }

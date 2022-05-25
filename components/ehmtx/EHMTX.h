@@ -154,6 +154,7 @@ namespace esphome
     bool del_slot(uint8_t _icon);
     void set_text(std::string text, uint8_t icon, uint8_t pixel, uint16_t et);
     void set_text_color(int r, int g, int b);
+    void reset_text_scroll();
   };
 
   class EHMTXNextScreenTrigger : public Trigger<std::string, std::string>
@@ -236,6 +237,27 @@ namespace esphome
   protected:
     EHMTX *parent_;
   };
+
+
+template <typename... Ts>
+  class SetAlarmColor : public Action<Ts...>
+  {
+  public:
+    SetAlarmColor(EHMTX *parent) : parent_(parent) {}
+    TEMPLATABLE_VALUE(uint8_t, red)
+    TEMPLATABLE_VALUE(uint8_t, green)
+    TEMPLATABLE_VALUE(uint8_t, blue)
+
+    void play(Ts... x) override
+    {
+      this->parent_->set_alarm_color(this->red_.value(x...), this->green_.value(x...), this->blue_.value(x...));
+    }
+
+  protected:
+    EHMTX *parent_;
+  };
+
+
 
 template <typename... Ts>
   class SetTodayColor : public Action<Ts...>

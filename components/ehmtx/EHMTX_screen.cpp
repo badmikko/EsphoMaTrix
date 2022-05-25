@@ -130,4 +130,9 @@ namespace esphome
     this->text_color = Color((uint8_t)r & 248, (uint8_t)g & 252, (uint8_t)b & 248);
   }
 
+  void EHMTX_screen::reset_text_scroll()
+  {
+    this->shiftx_ = 0;
+  }
+
 }
