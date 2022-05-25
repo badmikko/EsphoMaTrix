@@ -22,16 +22,6 @@ namespace esphome
 #endif
   }
 
-  void EHMTX::set_week_start(bool b)
-  {
-    this->week_starts_monday = b;
-    if (b){
-      ESP_LOGI(TAG, "weekstart: monday");
-    } else {
-      ESP_LOGI(TAG, "weekstart: sunday");
-    }
-  }
-
   void EHMTX::force_screen(std::string name)
   {
     uint8_t icon_id = this->find_icon(name);
@@ -357,8 +347,7 @@ namespace esphome
     auto dow = this->clock->now().day_of_week - 1; // SUN = 0
       for (uint8_t i = 0; i <= 6; i++)
       {
-        if ( ((!this->week_starts_monday) && (dow == i)) ||
-             ((this->week_starts_monday) && ((dow == (i+1)) || ((dow==0 && i == 6)) )))
+        if ((!this->week_starts_monday && (dow == i)) || ((this->week_starts_monday) && ((dow == (i+1)%7)) ))
         {
           this->display->line(2 + i * 4, 7, i * 4 + 4, 7, this->today_color);
         }
